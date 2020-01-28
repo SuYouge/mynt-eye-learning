@@ -71,6 +71,10 @@ add_subdirectory(util_cv)
 add_executable(get_imu_params get_imu_params.cc)
 target_link_libraries(get_imu_params mynteye util_cv ${OpenCV_LIBS})
 
+add_executable(camera_with_junior_device_api camera_with_junior_device_api.cc)
+target_link_libraries(camera_with_junior_device_api mynteye ${OpenCV_LIBS})
+
+
 # ADD_SUBDIRECTORY( cv_util )
 
 # 每个main单独编译

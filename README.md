@@ -72,3 +72,9 @@ I/get_device_info.cc:33 Isp version: 1
 ## 5. get_stereo_rectified
 
 [get_stereo_rectified](get_stereo_rectified.cc)类似 [mynt-eye_demo](mynteye_demo.cc)  
+
+获取修正后的图像
+
+## 6. camera_with_junior_device_api
+
+[获取原始图像](camera_with_junior_device_api.cc)
