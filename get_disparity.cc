@@ -11,12 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <stdio.h>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "mynteye/logger.h"
 #include "mynteye/api/api.h"
-
-#include "util_cv/util_cv.h"
+#include "mynteye/logger.h"
 
 MYNTEYE_USE_NAMESPACE
 
@@ -29,16 +28,33 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
-  // Enable this will cache the motion datas until you get them.
-  api->EnableMotionDatas();
-  // Enable imu timestamp correspondence int device;
-  api->EnableImuTimestampCorrespondence(true);
+  api->SetDisparityComputingMethodType(DisparityComputingMethod::SGBM);
+  api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
 
-  api->Start(Source::ALL);
+  if (argc == 2) {
+    std::string config_path(argv[1]);
+    if (api->ConfigDisparityFromFile(config_path)) {
+      LOG(INFO) << "load disparity file: "
+                << config_path
+                << " success."
+                << std::endl;
+    } else {
+      LOG(INFO) << "load disparity file: "
+                << config_path
+                << " failed."
+                << std::endl;
+    }
+  }
 
-  CVPainter painter;
+  api->Start(Source::VIDEO_STREAMING);
 
   cv::namedWindow("frame");
+  // cv::namedWindow("disparity");
+  cv::namedWindow("disparity_normalized");
+
+  double fps;
+  double t = 0.01;
+  std::cout << "disparity fps:" << std::endl;
 
   while (true) {
     api->WaitForStreams();
@@ -49,33 +65,21 @@ int main(int argc, char *argv[]) {
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
-
-      auto &&motion_datas = api->GetMotionDatas();
-      /*
-      for (auto &&data : motion_datas) {
-        LOG(INFO) << "Imu frame_id: " << data.imu->frame_id
-                  << ", timestamp: " << data.imu->timestamp
-                  << ", accel_x: " << data.imu->accel[0]
-                  << ", accel_y: " << data.imu->accel[1]
-                  << ", accel_z: " << data.imu->accel[2]
-                  << ", gyro_x: " << data.imu->gyro[0]
-                  << ", gyro_y: " << data.imu->gyro[1]
-                  << ", gyro_z: " << data.imu->gyro[2]
-                  << ", temperature: " << data.imu->temperature;
-      }
-      */
-
-      painter.DrawImgData(img, *left_data.img);
-      static std::vector<api::MotionData> motion_datas_s = motion_datas;
-
-      if (!motion_datas.empty() && motion_datas.size() > 0) {
-        motion_datas_s = motion_datas;
-      }
-      if (!motion_datas_s.empty() && motion_datas_s.size() > 0) {
-        painter.DrawImuData(img, *motion_datas_s[0].imu);
-      }
-
       cv::imshow("frame", img);
+    }
+
+    // auto &&disp_data = api->GetStreamData(Stream::DISPARITY);
+    // if (!disp_data.frame.empty()) {
+    //   cv::imshow("disparity", disp_data.frame);
+    // }
+
+    auto &&disp_norm_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
+    if (!disp_norm_data.frame.empty()) {
+      double t_c = cv::getTickCount() / cv::getTickFrequency();
+      fps = 1.0/(t_c - t);
+      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
+      t = t_c;
+      cv::imshow("disparity_normalized", disp_norm_data.frame);  // CV_8UC1
     }
 
     char key = static_cast<char>(cv::waitKey(1));
@@ -84,6 +88,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  api->Stop(Source::ALL);
+  api->Stop(Source::VIDEO_STREAMING);
   return 0;
 }

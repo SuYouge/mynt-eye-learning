@@ -75,6 +75,24 @@ I/get_device_info.cc:33 Isp version: 1
 
 获取修正后的图像
 
+1. `api->EnableStreamData(Stream::LEFT_RECTIFIED);`
+
+2. `auto &&left_data = api->GetStreamData(Stream::LEFT_RECTIFIED);`
+
+3. `api->WaitForStreams();`
+  
+双目纠正图像，属于上层合成数据。此类数据需要事先`EnableStreamData()`启用，然后`GetStreamData()`才能获取到。`WaitForStream`等待关键原始数据。刚开始时合成数据可能还在处理，取出的是空值，所以需要判断下不为空。
+
 ## 6. camera_with_junior_device_api
 
 [获取原始图像](camera_with_junior_device_api.cc)
+
+获取未修正过的图像以及IMU的数据
+
+## 7. get_disparity
+
+获取视差图像，同样需要事先`EnableStreamData()`启用，然后`GetStreamData()`才能获取到，另外判断不为空后再使用。
+
+可以通过插件提速，提高效果。
+
+1. `auto &&disp_norm_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);`

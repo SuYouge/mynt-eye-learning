@@ -7,8 +7,8 @@ project(mynteye_demo VERSION 1.0.0 LANGUAGES C CXX)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -march=native")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -march=native")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++14 -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -march=native")
 
 # packages
 
@@ -45,15 +45,26 @@ endif()
 find_package(OpenCV REQUIRED)
 message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
 
+find_package(PCL REQUIRED)
+message(STATUS "Found PCL: ${PCL_VERSION}")
+
+# find_package(PCL REQUIRED)
+# message(STATUS "Found PCL: ${PCL_VERSION}")
+
 # targets
 
 include_directories(
   ${OpenCV_INCLUDE_DIRS},
-  ${PROJECT_SOURCE_DIR}/util_cv
+  ${PCL_INCLUDE_DIRS},
+  ${PCL_INCLUDE_DIRS}/visualization,
+  "/usr/include/vtk-6.3"
 )
 
 ## mynteye_demo
 # exe
+
+add_subdirectory(util_cv)
+add_subdirectory(util_pcl)
 
 add_executable(mynteye_demo mynteye_demo.cc)
 target_link_libraries(mynteye_demo mynteye ${OpenCV_LIBS})
@@ -67,15 +78,24 @@ target_link_libraries(get_device_info mynteye ${OpenCV_LIBS})
 add_executable(get_stereo_rectified get_stereo_rectified.cc)
 target_link_libraries(get_stereo_rectified mynteye ${OpenCV_LIBS})
 
-add_subdirectory(util_cv)
 add_executable(get_imu_params get_imu_params.cc)
 target_link_libraries(get_imu_params mynteye util_cv ${OpenCV_LIBS})
 
 add_executable(camera_with_junior_device_api camera_with_junior_device_api.cc)
 target_link_libraries(camera_with_junior_device_api mynteye ${OpenCV_LIBS})
 
+add_executable(get_disparity get_disparity.cc)
+target_link_libraries(get_disparity mynteye ${OpenCV_LIBS})
 
-# ADD_SUBDIRECTORY( cv_util )
+add_executable(get_depth get_depth.cc)
+target_link_libraries(get_depth mynteye ${OpenCV_LIBS})
+
+add_executable(get_depth_and_points get_depth_and_points.cc)
+target_link_libraries(get_depth_and_points mynteye util_pcl util_cv 
+  # link阶段出现DSO问题时 添加响应的库名称到这里即可
+  pcl_visualization vtkInteractionStyle-6.3 vtkRenderingOpenGL-6.3 vtkRenderingFreeType-6.3 
+  vtkRenderingCore-6.3  vtkCommonDataModel-6.3 vtkCommonMath-6.3 vtkCommonCore-6.3 
+  ${OpenCV_LIBS})
 
 # 每个main单独编译
 # file(GLOB_RECURSE mains RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
