@@ -96,3 +96,41 @@ I/get_device_info.cc:33 Isp version: 1
 可以通过插件提速，提高效果。
 
 1. `auto &&disp_norm_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);`
+
+## 8. get_depth_and_points
+
+[获取视差，深度和点云图像](get_depth_and_points.cc)
+
+点云图像，属于上层合成数据。需要事先`EnableStreamData()`启用，然后`GetStreamData()`获取。另外，判断不为空后再使用。
+
+### 8.1 C++知识点
+
+
+
+* 右值引用（&&）
+* lambda表达式
+* 回调函数（callback）
+* 无名命名空间
+* C++类设计的五个基本原则
+* explicit禁用隐式类型转换
+* 类成员的冒号初始化
+* std::function
+* std::move
+* reinterpret_cast/static_cast
+
+### 8.2 main函数流程
+
+1. 设置相机参数，进入while循环
+2. 获取左右相机的原始数据并拼接显示：`api->GetStreamData(Stream::LEFT);`
+3. 获取视差图和深度（depth图）：
+    * `api->GetStreamData(Stream::DISPARITY_NORMALIZED);`
+    * `api->GetStreamData(Stream::DEPTH);`
+4. 设置鼠标点击的回调函数
+    * `cv::setMouseCallback("depth", OnDepthMouseCallback, &depth_region);`
+5. 调用`DepthRegion`类的`DrawRect`和`ShowElems`
+6. 获取点云信息`api->GetStreamData(Stream::POINTS)`并且每当有心的闲云信息时对`pcviewer`进行更新  
+7. 检测while终止，`api->Stop(Source::VIDEO_STREAMING)`关闭视频流
+
+### 8.3 `class DepthRegion`
+
+### 8.4 `OnDepthMouseCallback(...)`

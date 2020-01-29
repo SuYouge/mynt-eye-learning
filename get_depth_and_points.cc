@@ -147,7 +147,7 @@ void OnDepthMouseCallback(int event, int x, int y, int flags, void *userdata) {
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
-  auto &&api = API::Create(argc, argv);
+  auto &&api = API::Create(argc, argv); // 右值引用
   if (!api) return 1;
 
   bool ok;
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
   cv::namedWindow("region");
 
   DepthRegion depth_region(3);
-  auto depth_info = [](
+  auto depth_info = []( // lambda表达式
       const cv::Mat &depth, const cv::Point &point, const std::uint32_t &n) {
     MYNTEYE_UNUSED(depth)
     std::ostringstream os;
@@ -177,8 +177,8 @@ int main(int argc, char *argv[]) {
     return os.str();
   };
 
-  CVPainter painter;
-  PCViewer pcviewer;
+  CVPainter painter; // util_cv中定义的类
+  PCViewer pcviewer; // util_pcl中定义的类
 
   while (true) {
     api->WaitForStreams();
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
     cv::Mat img;
-    cv::hconcat(left_data.frame, right_data.frame, img);
+    cv::hconcat(left_data.frame, right_data.frame, img); // 图像拼接
 
     painter.DrawImgData(img, *left_data.img);
 
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
       cv::applyColorMap(depth_frame, depth_frame, cv::COLORMAP_JET);
 #endif
 
-      cv::setMouseCallback("depth", OnDepthMouseCallback, &depth_region);
+      cv::setMouseCallback("depth", OnDepthMouseCallback, &depth_region); // Callback
       // Note: DrawRect will change some depth values to show the rect.
       depth_region.DrawRect(depth_frame);
 
