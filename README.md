@@ -91,6 +91,8 @@ I/get_device_info.cc:33 Isp version: 1
 
 ## 7. get_disparity
 
+[获取视差图](get_disparity.cc)
+
 获取视差图像，同样需要事先`EnableStreamData()`启用，然后`GetStreamData()`才能获取到，另外判断不为空后再使用。
 
 可以通过插件提速，提高效果。
@@ -105,7 +107,7 @@ I/get_device_info.cc:33 Isp version: 1
 
 ### 8.1 C++知识点
 
-
+[知识点总结]()
 
 * 右值引用（&&）
 * lambda表达式
@@ -134,3 +136,55 @@ I/get_device_info.cc:33 Isp version: 1
 ### 8.3 `class DepthRegion`
 
 ### 8.4 `OnDepthMouseCallback(...)`
+
+## 9. get_imu_correspondence
+
+[获取imu即进行帧同步](get_imu_correspondence.cc)
+
+imu和stream之间的时间戳同步。
+
+1. `api->EnableTimestampCorrespondence(Stream::LEFT); `
+
+2. 读取两眼图像信息并判断是否有不为空的帧，如果有则读取某一只眼的（左眼）时间戳`auto img_stamp = left_data.img->timestamp;`
+
+3. 计算两帧间的时间差`img_stamp - prev_img_stamp`
+
+4. 读取imu信息`auto &&motion_datas = api->GetMotionDatas();`如果此vector大小为0则跳过这一次循环。
+
+5. 遍历`motion_datas`队列，为每个成员判断数据类型，读取时间戳并计算它们与上一个`imu_stamp`之间的差值  以及它们与图像时间戳之间的差值（并+1），最后更新时间戳
+
+第2步到第5步以图像帧的更新为准。即获取两帧之间`imu`可能累积许多组数据，细节取决于`GetMotionDatas()`的实现。
+
+## 10. get_imu
+
+[读取imu数据](get_imu.cc)
+
+相对`get_imu_correspondence`而言，没有计算图像帧与数据帧之间的时间戳差值  
+在通过`auto &&motion_datas = api->GetMotionDatas();`获取imu数据之后将数据备份在`motion_datas_s`内。备份用`static`修饰，静态局部变量只初始化一次。
+
+[c++中的static](https://www.cnblogs.com/33debug/p/7223869.html)
+
+> 1.该变量在全局数据区分配内存；  
+2.静态局部变量在程序执行到该对象的声明处时被首次初始化，即以后的函数调用不再进行初始化；  
+3.静态局部变量一般在声明处初始化，如果没有显式初始化，会被程序自动初始化为0；  
+4.它始终驻留在全局数据区，直到程序运行结束。但其作用域为局部作用域，当定义它的函数或语句块结束时，其作用域随之结束。  
+
+# 11. get_data_withoutselect
+
+[获取默认视频流](get_data_withoutselect.cc)
+调用 `auto request = api->GetStreamRequest();`获取默认的视频流。
+
+# 12. get_from_callbacks
+
+[从回调函数获取图像](get_from_callbacks.cc)
+
+一共有3个数据流通过回调函数获取，左眼图像、深度图和imu数据。每个都符合如下流程：
+
+1. 设置计数器：`std::atomic_uint left_count(0);`
+
+2. 设置回调函数：`api->SetStreamCallback(...)`，传入所需的类以及一个lambda表达式。
+
+设定全部完成后通过`api->Start(Source::ALL);`开启获取。3种数据中，深度图和imu各持有一个锁。
+
+在`while`循环中通过`CVPainter`来进行各个数据的绘制。
+

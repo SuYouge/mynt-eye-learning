@@ -62,41 +62,64 @@ include_directories(
 
 ## mynteye_demo
 # exe
-
+####################################################################################
 add_subdirectory(util_cv)
-add_subdirectory(util_pcl)
+# add_subdirectory(util_pcl)
+# add_subdirectory(util_dataset)
 
-add_executable(mynteye_demo mynteye_demo.cc)
-target_link_libraries(mynteye_demo mynteye ${OpenCV_LIBS})
+# add_executable(mynteye_demo mynteye_demo.cc)
+# target_link_libraries(mynteye_demo mynteye ${OpenCV_LIBS})
 
-add_executable(get_img_params get_img_params.cc)
-target_link_libraries(get_img_params mynteye ${OpenCV_LIBS})
+# add_executable(get_img_params get_img_params.cc)
+# target_link_libraries(get_img_params mynteye ${OpenCV_LIBS})
 
-add_executable(get_device_info get_device_info.cc)
-target_link_libraries(get_device_info mynteye ${OpenCV_LIBS})
+# add_executable(get_device_info get_device_info.cc)
+# target_link_libraries(get_device_info mynteye ${OpenCV_LIBS})
 
-add_executable(get_stereo_rectified get_stereo_rectified.cc)
-target_link_libraries(get_stereo_rectified mynteye ${OpenCV_LIBS})
+# add_executable(get_stereo_rectified get_stereo_rectified.cc)
+# target_link_libraries(get_stereo_rectified mynteye ${OpenCV_LIBS})
 
-add_executable(get_imu_params get_imu_params.cc)
-target_link_libraries(get_imu_params mynteye util_cv ${OpenCV_LIBS})
+# add_executable(get_imu_params get_imu_params.cc)
+# target_link_libraries(get_imu_params mynteye util_cv ${OpenCV_LIBS})
 
-add_executable(camera_with_junior_device_api camera_with_junior_device_api.cc)
-target_link_libraries(camera_with_junior_device_api mynteye ${OpenCV_LIBS})
+# add_executable(camera_with_junior_device_api camera_with_junior_device_api.cc)
+# target_link_libraries(camera_with_junior_device_api mynteye ${OpenCV_LIBS})
 
-add_executable(get_disparity get_disparity.cc)
-target_link_libraries(get_disparity mynteye ${OpenCV_LIBS})
+# add_executable(get_disparity get_disparity.cc)
+# target_link_libraries(get_disparity mynteye ${OpenCV_LIBS})
 
-add_executable(get_depth get_depth.cc)
-target_link_libraries(get_depth mynteye ${OpenCV_LIBS})
+# add_executable(get_depth get_depth.cc)
+# target_link_libraries(get_depth mynteye ${OpenCV_LIBS})
 
-add_executable(get_depth_and_points get_depth_and_points.cc)
-target_link_libraries(get_depth_and_points mynteye util_pcl util_cv 
-  # link阶段出现DSO问题时 添加响应的库名称到这里即可
-  pcl_visualization vtkInteractionStyle-6.3 vtkRenderingOpenGL-6.3 vtkRenderingFreeType-6.3 
-  vtkRenderingCore-6.3  vtkCommonDataModel-6.3 vtkCommonMath-6.3 vtkCommonCore-6.3 
-  ${OpenCV_LIBS})
+# add_executable(get_depth_and_points get_depth_and_points.cc)
+# target_link_libraries(get_depth_and_points mynteye util_pcl util_cv 
+#   # link阶段出现DSO问题时 添加相应的库名称到这里即可
+#   pcl_visualization vtkInteractionStyle-6.3 vtkRenderingOpenGL-6.3 vtkRenderingFreeType-6.3 
+#   vtkRenderingCore-6.3  vtkCommonDataModel-6.3 vtkCommonMath-6.3 vtkCommonCore-6.3 
+#   ${OpenCV_LIBS})
 
+# add_executable(save_single_image save_single_image.cc)
+# target_link_libraries(save_single_image mynteye ${OpenCV_LIBS})
+
+# add_executable(get_imu_correspondence get_imu_correspondence.cc)
+# target_link_libraries(get_imu_correspondence mynteye util_cv ${OpenCV_LIBS})
+
+# add_executable(get_imu get_imu.cc)
+# target_link_libraries(get_imu mynteye util_cv ${OpenCV_LIBS})
+
+# add_executable(record record.cc)
+# target_link_libraries(record mynteye util_dataset ${OpenCV_LIBS})
+
+# add_executable(get_data_withoutselect get_data_withoutselect.cc)
+# target_link_libraries(get_data_withoutselect mynteye ${OpenCV_LIBS})
+
+# add_executable(get_depth_with_region get_depth_with_region.cc)
+# target_link_libraries(get_depth_with_region mynteye ${OpenCV_LIBS})
+
+add_executable(get_from_callbacks get_from_callbacks.cc)
+target_link_libraries(get_from_callbacks mynteye util_cv ${OpenCV_LIBS})
+
+####################################################################################
 # 每个main单独编译
 # file(GLOB_RECURSE mains RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
 # foreach(mainfile IN LISTS mains)
